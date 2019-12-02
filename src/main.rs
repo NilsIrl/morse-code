@@ -120,19 +120,35 @@ fn decode(code: &str) -> char {
     }
 }
 
+fn subcommand_with_name(name: &str) -> clap::App {
+    clap::App::new(name)
+        .arg(
+            clap::Arg::with_name("dash")
+                .long("dash")
+                .takes_value(true)
+                .default_value("_"),
+        )
+        .arg(
+            clap::Arg::with_name("dot")
+                .long("dot")
+                .takes_value(true)
+                .default_value("."),
+        )
+}
+
 fn main() {
     use std::io::BufRead;
     let matches = clap::App::new("morse-code")
         .author("Nils <nils@nilsand.re>")
         .version("v0.0.1")
-        .subcommand(clap::App::new("encode"))
-        .subcommand(clap::App::new("decode"))
+        .subcommand(subcommand_with_name("encode"))
+        .subcommand(subcommand_with_name("decode"))
         .get_matches();
 
     println!(
         "{}",
-        match matches.subcommand_name() {
-            Some("encode") => std::io::stdin()
+        match matches.subcommand() {
+            ("encode", Some(sub_m)) => std::io::stdin()
                 .lock()
                 .lines()
                 .map(|line| line
@@ -142,14 +158,20 @@ fn main() {
                     .collect::<Vec<&str>>()
                     .join(" "))
                 .collect::<Vec<String>>()
-                .join("\n"), // Morse code doesn't have newlines, so should the output not reflect that?
-            Some("decode") => std::io::stdin()
+                .join("\n") // Morse code doesn't have newlines, so should the output not reflect that?
+                .replace('_', sub_m.value_of("dash").unwrap())
+                .replace('.', sub_m.value_of("dot").unwrap()),
+            ("decode", Some(sub_m)) => std::io::stdin()
                 .lock()
                 .lines()
                 .map(|line| line
                     .unwrap()
                     .split_whitespace()
-                    .map(|code| decode(code))
+                    .map(|code| decode(
+                        &code
+                            .replace(sub_m.value_of("dash").unwrap(), "_")
+                            .replace(sub_m.value_of("dot").unwrap(), ".")
+                    ))
                     .collect::<String>())
                 .collect::<Vec<String>>()
                 .join("\n"),
