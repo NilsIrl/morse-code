@@ -123,6 +123,7 @@ fn decode(code: &str) -> char {
 fn main() {
     use std::io::BufRead;
     let matches = clap::App::new("morse-code")
+        .author("Nils <nils@nilsand.re>")
         .version("v0.0.1")
         .subcommand(clap::App::new("encode"))
         .subcommand(clap::App::new("decode"))
