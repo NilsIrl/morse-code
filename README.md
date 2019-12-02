@@ -5,6 +5,7 @@ GCI Task
 
 ```bash
 $ git clone git@github.com:NilsIrl/morse-code.git
+$ cd morse-code
 $ cargo run -- encode <<< "SOS"
 ... ___ ...
 $ cargo run -- encode <<< "SOS" | cargo run -- decode
